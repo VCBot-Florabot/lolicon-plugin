@@ -20,7 +20,8 @@ def init():  # 插件初始化函数,在载入(若插件已设为禁用则不载
 
 
 def api_update_event():  # 在API更新时会调用一次(若插件已设为禁用则不调用),可及时获得最新的API内容,无传入参数
-    print(flora_api)
+    #print(flora_api)
+    pass
 
 
 def event(data: dict):  # 事件函数,FloraBot每收到一个事件都会调用这个函数(若插件已设为禁用则不调用),传入原消息JSON参数
@@ -42,7 +43,7 @@ def event(data: dict):  # 事件函数,FloraBot每收到一个事件都会调用
     # 处理消息
     if msg is not None:
         msg = msg.replace("&#91;", "[").replace("&#93;", "]").replace("&amp;", "&").replace("&#44;", ",")  # 消息需要将URL编码替换到正确内容
-        print(uid, gid, mid, msg)
+        #print(uid, gid, mid, msg)
         message=msg.split(" ")
         print(message)
         api="https://api.lolicon.app/setu/v2"
