@@ -1,9 +1,12 @@
+import os
 import httpx as requests
+import time,datetime
 import json
 # 前言,这里用不到的函数可以不定义,可以直接删去,包括API也可以删去不定义,不会报错的
 
 flora_api = {}  # 顾名思义,FloraBot的API,载入(若插件已设为禁用则不载入)后会赋值上
-timeout=requests.Timeout(30)
+timeout=requests.Timeout(10.0,connect=20.0)
+
 
 def occupying_function(*values):  # 该函数仅用于占位,并没有任何意义
     pass
@@ -21,6 +24,10 @@ def init():  # 插件初始化函数,在载入(若插件已设为禁用则不载
 
 def api_update_event():  # 在API更新时会调用一次(若插件已设为禁用则不调用),可及时获得最新的API内容,无传入参数
     #print(flora_api)
+    try:
+        os.rmdir(f"./{flora_api.get('ThePluginPath')}/temp")
+    except:
+        pass
     pass
 
 
@@ -49,31 +56,60 @@ def event(data: dict):  # 事件函数,FloraBot每收到一个事件都会调用
         api="https://api.lolicon.app/setu/v2"
         #转小写
         if message[0] == "lolicon":
-            api_flags=""
+            api_flags="?"
+            begins=1
+            ifail=False
+            mutil=False
             try:
-                for i in range(1,len(message)):
+                a=int(message[1])
+            except:
+                ifail=True
+            finally:
+                if not ifail and a <= 20 :
+                    begins=2
+                    if gid is None:
+                        mutil=True
+                        api_flags+=f"num={message[1]}&excludeAI=true"
+                        send_compatible(msg="准备发送多张图片",uid=uid,gid=gid,mid=mid)
+                    else:
+                        send_compatible(msg="为防止群聊刷屏，已禁用发送多张图片",uid=uid,gid=gid,mid=mid)
+            try:
+                for i in range(begins,len(message)):
                     if i==1:
-                        api_flags=f"?tag={message[i]}"
+                        api_flags+=f"excludeAI=true&tag={message[i]}"
                     else:
                         api_flags+=f"&tag={message[i]}"
             finally:
                 fail=False
+                print(f'{api}{api_flags}')
                 try:
                     results=requests.get(f'{api}{api_flags}',timeout=timeout)
                 except:
                     fail=True
-                    send_compatible(msg="[CQ:at,qq={uid}]\n获取失败,也许是网络问题,可重新尝试获取qwq",uid=uid,gid=gid,mid=mid)
+                    send_compatible(msg=f"[CQ:at,qq={uid}]\n获取失败,也许是网络问题,可重新尝试获取qwq",uid=uid,gid=gid,mid=mid)
                 if fail:
                     return
+                print(results.text)
                 resulted=json.loads(results.text)
                 print(resulted)
-                #发送前获取图片
-                pic_req=requests.get(resulted['data'][0]['urls']['original'],timeout=timeout)
-                if pic_req.status_code == 404:
-                    send_compatible(f"[CQ:at,qq={uid}]\n获取图片失败",uid=uid,gid=gid,mid=mid)
-                    return
-            send_compatible(msg=f"[CQ:at,qq={uid}]\n[CQ:image,file={resulted['data'][0]['urls']['original']}]",uid=uid,gid=gid,mid=mid)
+            for i in range(len(resulted['data'])):
+                print(i)
+                time.sleep(1)
+                if not mutil:
+                    send_compatible(msg=f"[CQ:at,qq={uid}]\n正在加载图片...(如果没有可查看链接)\n{resulted['data'][i-1]['urls']['original']}",uid=uid,gid=gid,mid=mid)
+                send_compatible(msg=f"[CQ:image,file={resulted['data'][i-1]['urls']['original']}]",uid=uid,gid=gid)
+            
 
+def get_image(url:str):
+    dt =datetime.datetime.now()
+    dtt=dt.timestamp()
+    if not os.path.exists(f"./{flora_api.get('ThePluginPath')}/temp"):
+        os.mkdir(f"./{flora_api.get('ThePluginPath')}/temp")
+    files=requests.get(url)
+    with open(f"./{flora_api.get('ThePluginPath')}/temp/temp-{str(dtt)}.jpg","wb") as f:
+        for chunk in files.iter_bytes():
+            f.write(chunk)
+    return f"{flora_api.get('FloraPath')}/{flora_api.get('ThePluginPath')}/temp/temp-{str(dtt)}.jpg"
 def retrys(url:str):
     try:
         req=requests.get(url)
