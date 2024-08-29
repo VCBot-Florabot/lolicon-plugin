@@ -1,3 +1,5 @@
+import httpx as requests
+import json
 # 前言,这里用不到的函数可以不定义,可以直接删去,包括API也可以删去不定义,不会报错的
 
 flora_api = {}  # 顾名思义,FloraBot的API,载入(若插件已设为禁用则不载入)后会赋值上
@@ -41,6 +43,23 @@ def event(data: dict):  # 事件函数,FloraBot每收到一个事件都会调用
     if msg is not None:
         msg = msg.replace("&#91;", "[").replace("&#93;", "]").replace("&amp;", "&").replace("&#44;", ",")  # 消息需要将URL编码替换到正确内容
         print(uid, gid, mid, msg)
+        message=msg.split(" ")
+        print(message)
+        api="https://api.lolicon.app/setu/v2"
+        #转小写
+        if message[0] == "lolicon":
+            api_flags=""
+            try:
+                for i in range(1,len(message)):
+                    if i==1:
+                        api_flags=f"?tag={message[i]}"
+                    else:
+                        api_flags+=f"&tag={message[i]}"
+            finally:
+                results=requests.get(f'{api}{api_flags}')
+                resulted=json.loads(results.text)
+                print(resulted)
+            send_compatible(msg=f"[CQ:at,qq={uid}]\n[CQ:image,file={resulted['data'][0]['urls']['original']}]",uid=uid,gid=gid,mid=mid)
 
 def send_compatible(msg:str,uid:str|int,gid: str|int,mid:int|str=None):  #兼容性函数,用于兼容旧版本API(请直接调用本函数)
     if flora_api.get("FloraVersion") == 'v1.01': #旧版本API
