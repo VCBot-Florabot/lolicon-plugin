@@ -3,7 +3,7 @@ import json
 # 前言,这里用不到的函数可以不定义,可以直接删去,包括API也可以删去不定义,不会报错的
 
 flora_api = {}  # 顾名思义,FloraBot的API,载入(若插件已设为禁用则不载入)后会赋值上
-
+timeout=requests.Timeout(30)
 
 def occupying_function(*values):  # 该函数仅用于占位,并没有任何意义
     pass
@@ -57,11 +57,29 @@ def event(data: dict):  # 事件函数,FloraBot每收到一个事件都会调用
                     else:
                         api_flags+=f"&tag={message[i]}"
             finally:
-                results=requests.get(f'{api}{api_flags}')
+                fail=False
+                try:
+                    results=requests.get(f'{api}{api_flags}',timeout=timeout)
+                except:
+                    fail=True
+                    send_compatible(msg="[CQ:at,qq={uid}]\n获取失败,也许是网络问题,可重新尝试获取qwq",uid=uid,gid=gid,mid=mid)
+                if fail:
+                    return
                 resulted=json.loads(results.text)
                 print(resulted)
+                #发送前获取图片
+                pic_req=requests.get(resulted['data'][0]['urls']['original'],timeout=timeout)
+                if pic_req.status_code == 404:
+                    send_compatible(f"[CQ:at,qq={uid}]\n获取图片失败",uid=uid,gid=gid,mid=mid)
+                    return
             send_compatible(msg=f"[CQ:at,qq={uid}]\n[CQ:image,file={resulted['data'][0]['urls']['original']}]",uid=uid,gid=gid,mid=mid)
 
+def retrys(url:str):
+    try:
+        req=requests.get(url)
+    except requests.ConnectTimeout:
+        return retrys(url)
+    return req
 def send_compatible(msg:str,uid:str|int,gid: str|int,mid:int|str=None):  #兼容性函数,用于兼容旧版本API(请直接调用本函数)
     if flora_api.get("FloraVersion") == 'v1.01': #旧版本API
         send_msg(msg=msg,gid=gid,uid=uid,mid=mid)
