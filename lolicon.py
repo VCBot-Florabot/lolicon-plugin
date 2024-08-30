@@ -6,6 +6,13 @@ import json
 
 flora_api = {}  # 顾名思义,FloraBot的API,载入(若插件已设为禁用则不载入)后会赋值上
 timeout=requests.Timeout(10.0,connect=20.0)
+header={
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.90 Safari/537.36 Edg/89.0.774.54",
+    "Content-Type": "application/json"
+}
+post_json={
+    "excludeAI": True,
+}
 
 
 def occupying_function(*values):  # 该函数仅用于占位,并没有任何意义
@@ -51,6 +58,9 @@ def event(data: dict):  # 事件函数,FloraBot每收到一个事件都会调用
     if msg is not None:
         msg = msg.replace("&#91;", "[").replace("&#93;", "]").replace("&amp;", "&").replace("&#44;", ",")  # 消息需要将URL编码替换到正确内容
         #print(uid, gid, mid, msg)
+        if msg == ".lolitest":
+            r=requests.get("https://net.lolicon.app/detail",headers=header)
+            print(r.text)
         message=msg.split(" ")
         print(message)
         api="https://api.lolicon.app/setu/v2"
@@ -60,6 +70,7 @@ def event(data: dict):  # 事件函数,FloraBot每收到一个事件都会调用
             begins=1
             ifail=False
             mutil=False
+            tags=[]
             try:
                 a=int(message[1])
             except:
@@ -69,24 +80,25 @@ def event(data: dict):  # 事件函数,FloraBot每收到一个事件都会调用
                     begins=2
                     if gid is None:
                         mutil=True
-                        api_flags+=f"num={message[1]}&excludeAI=true"
-                        send_compatible(msg="准备发送多张图片",uid=uid,gid=gid,mid=mid)
+                        post_json["num"]=a
+                        send_compatible(msg="准备获取多张图片",uid=uid,gid=gid,mid=mid)
                     else:
                         send_compatible(msg="为防止群聊刷屏，已禁用发送多张图片",uid=uid,gid=gid,mid=mid)
             try:
                 for i in range(begins,len(message)):
-                    if i==1:
-                        api_flags+=f"excludeAI=true&tag={message[i]}"
-                    else:
-                        api_flags+=f"&tag={message[i]}"
+                        tags.append(message[i])
             finally:
+                post_json["tag"]=tags
+                print(json.dumps(post_json,ensure_ascii=False))
+                
                 fail=False
-                print(f'{api}{api_flags}')
+                print(f'{api}')
                 try:
-                    results=requests.get(f'{api}{api_flags}',timeout=timeout)
+                    results=requests.post(api,data=json.dumps(post_json,ensure_ascii=False),timeout=timeout,headers=header)
                 except:
                     fail=True
-                    send_compatible(msg=f"[CQ:at,qq={uid}]\n获取失败,也许是网络问题,可重新尝试获取qwq",uid=uid,gid=gid,mid=mid)
+                    send_compatible(msg=f"[CQ:at,qq={uid}]\n获取失败,也许是api调用限制问题,稍后可重新获取qwq",uid=uid,gid=gid,mid=mid)
+                    raise
                 if fail:
                     return
                 print(results.text)
@@ -97,6 +109,8 @@ def event(data: dict):  # 事件函数,FloraBot每收到一个事件都会调用
                 time.sleep(1)
                 if not mutil:
                     send_compatible(msg=f"[CQ:at,qq={uid}]\n正在加载图片...(如果没有可查看链接)\n{resulted['data'][i-1]['urls']['original']}",uid=uid,gid=gid,mid=mid)
+                elif mutil and i==1:
+                    send_compatible(msg=f"获取成功，正在发送",uid=uid,gid=gid,mid=mid)
                 send_compatible(msg=f"[CQ:image,file={resulted['data'][i-1]['urls']['original']}]",uid=uid,gid=gid)
             
 
