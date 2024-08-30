@@ -96,10 +96,10 @@ def event(data: dict):  # 事件函数,FloraBot每收到一个事件都会调用
                 print(i)
                 time.sleep(1)
                 if not mutil:
-                    send_compatible(msg=f"[CQ:at,qq={uid}]\n正在加载图片...(如果没有可查看链接)\n{resulted['data'][i-1]['urls']['original']}",uid=uid,gid=gid,mid=mid)
+                    send_compatible(msg=f"[CQ:at,qq={uid}]\n正在加载图片...(如果没有可查看链接)\n{resulted['data'][i]['urls']['original']}",uid=uid,gid=gid,mid=mid)
                 elif mutil and i==1:
                     send_compatible(msg=f"正在加载图片...",uid=uid,gid=gid,mid=mid)
-                send_compatible(msg=f"[CQ:image,file={resulted['data'][i-1]['urls']['original']}]",uid=uid,gid=gid)
+                send_compatible(msg=f"[CQ:image,file={resulted['data'][i]['urls']['original']}]",uid=uid,gid=gid)
             
 
 def get_image(url:str):
