@@ -12,6 +12,7 @@ header={
 }
 post_json={
     "excludeAI": True,
+    "num": 1
 }
 
 
@@ -67,6 +68,7 @@ def event(data: dict):  # 事件函数,FloraBot每收到一个事件都会调用
         #转小写
         if message[0] == "lolicon":
             api_flags="?"
+            num=1
             begins=1
             ifail=False
             mutil=False
@@ -75,8 +77,9 @@ def event(data: dict):  # 事件函数,FloraBot每收到一个事件都会调用
                 a=int(message[1])
             except:
                 ifail=True
+                post_json["num"]=num
             finally:
-                if not ifail and a <= 20 :
+                if not ifail and a <= 20 and a > 0 :
                     begins=2
                     if gid is None:
                         mutil=True
@@ -104,12 +107,12 @@ def event(data: dict):  # 事件函数,FloraBot每收到一个事件都会调用
                 print(results.text)
                 resulted=json.loads(results.text)
                 print(resulted)
-            for i in range(len(resulted['data'])):
+            for i in range(0,len(resulted['data'])):
                 print(i)
                 time.sleep(1)
                 if not mutil:
                     send_compatible(msg=f"[CQ:at,qq={uid}]\n正在加载图片...(如果没有可查看链接)\n{resulted['data'][i]['urls']['original']}",uid=uid,gid=gid,mid=mid)
-                elif mutil and i==1:
+                elif mutil and i==0:
                     send_compatible(msg=f"获取成功，正在发送",uid=uid,gid=gid,mid=mid)
                 send_compatible(msg=f"[CQ:image,file={resulted['data'][i]['urls']['original']}]",uid=uid,gid=gid)
             
