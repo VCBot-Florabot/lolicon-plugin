@@ -86,7 +86,7 @@ def event(data: dict):  # 事件函数,FloraBot每收到一个事件都会调用
                     results=requests.get(f'{api}{api_flags}',timeout=timeout)
                 except:
                     fail=True
-                    send_compatible(msg=f"[CQ:at,qq={uid}]\n获取失败,也许是网络问题,可重新尝试获取qwq",uid=uid,gid=gid,mid=mid)
+                    send_compatible(msg=f"[CQ:at,qq={uid}]\n获取失败,也许是lolicon api调用限制,可稍后重新尝试获取qwq",uid=uid,gid=gid,mid=mid)
                 if fail:
                     return
                 print(results.text)
@@ -97,6 +97,8 @@ def event(data: dict):  # 事件函数,FloraBot每收到一个事件都会调用
                 time.sleep(1)
                 if not mutil:
                     send_compatible(msg=f"[CQ:at,qq={uid}]\n正在加载图片...(如果没有可查看链接)\n{resulted['data'][i-1]['urls']['original']}",uid=uid,gid=gid,mid=mid)
+                elif mutil and i==1:
+                    send_compatible(msg=f"正在加载图片...",uid=uid,gid=gid,mid=mid)
                 send_compatible(msg=f"[CQ:image,file={resulted['data'][i-1]['urls']['original']}]",uid=uid,gid=gid)
             
 

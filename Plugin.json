@@ -1,6 +1,6 @@
 {
     "PluginName": "Lolicon",
-    "DependentLibraries": null,
+    "DependentLibraries": ["httpx"],
     "IsLibraries": false,
     "PluginIcon": null,
     "PluginAuthor": "luyanci",
