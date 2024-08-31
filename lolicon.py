@@ -86,6 +86,7 @@ def event(data: dict):  # 事件函数,FloraBot每收到一个事件都会调用
                         post_json["num"]=a
                         send_compatible(msg="准备获取多张图片",uid=uid,gid=gid,mid=mid)
                     else:
+                        post_json["num"]=1
                         send_compatible(msg="为防止群聊刷屏，已禁用发送多张图片",uid=uid,gid=gid,mid=mid)
             try:
                 for i in range(begins,len(message)):
