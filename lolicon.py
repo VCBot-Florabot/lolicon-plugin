@@ -95,7 +95,7 @@ def event(data: dict):  # 事件函数,FloraBot每收到一个事件都会调用
             try:
                 for i in range(begins,len(message)): # 遍历参数
                     if gid is None: # 私聊检测,然后再确认tag内容是否设置了r18需求
-                        if rate18_set : # 如果已经设置r18参数，则跳过# and message[i].lower() in ["adultonly","adult-only","r18","r-18"] 
+                        if rate18_set and message[i].lower() in ["adultonly","adult-only","r18","r-18"] : # 如果已经设置r18参数，则跳过# 
                             continue
                         elif message[i].lower() in ["adultonly","adult-only"]: # 设置r18参数（只发送r18）
                             rate18_set=True
