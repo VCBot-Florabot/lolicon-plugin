@@ -66,6 +66,7 @@ def event(data: dict):  # 事件函数,FloraBot每收到一个事件都会调用
         message=msg.split(" ")
         print(message)
         api="https://api.lolicon.app/setu/v2"
+        forms="https://pixiv.net/artworks/"
         #转小写
         if message[0] == "lolicon":
             api_flags = {}
@@ -135,7 +136,7 @@ def event(data: dict):  # 事件函数,FloraBot每收到一个事件都会调用
                 #print(i)
                 datas=parse_data(resulted['data'][i])
                 #print(datas)
-                texts=f"NO.{i+1} PID:{datas['pid']} p{str(datas['p'])}\n标题：{datas['title']}\n上传时间:{datas['date']}\n作者：{datas['author']} UID:{datas['uid']}\nR18:{datas['r18']} AI:{datas['aitype']}\n标签：{datas['tags']}\n原图链接：{datas['original_url']}"
+                texts=f"NO.{i+1} PID:{datas['pid']} p{str(datas['p'])}\n标题：{datas['title']}\n上传时间:{datas['date']}\n作者：{datas['author']} UID:{datas['uid']}\nR18:{datas['r18']} AI:{datas['aitype']}\n标签：{datas['tags']}\n原帖子:{forms}{datas['pid']}\n原图链接：{datas['original_url']}"
                 time.sleep(1)
                 if i==0:
                     send_compatible(msg=f"获取成功，正在发送(共{str(len(resulted['data']))}张)",uid=uid,gid=gid,mid=mid)
